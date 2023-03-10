@@ -25,6 +25,8 @@ Notes Application ReadMe
             CMD->    READ   : ./note Read pattern   
             CMD->    DELETE : ./note Remove XXXX     
 
+* containerise use the docker file to create container (available in NoteApp folder)
+
 * Preferences : the user can change the preference for the application which are declared in the
                 Constants.go file (preferences section)  
             	_CHAR_SET : The set of character used for generating the random string XXXX which 
