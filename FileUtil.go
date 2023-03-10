@@ -67,7 +67,7 @@ func removeFile(fileName string) bool {
 	filePath := filepath.Join(_PATH, fileName)
 	e := os.Remove(filePath)
     if e != nil {
-        log.Println(_NOTE_NOT_FOUND_DELETE, filePath)
+        log.Fatal(e)
 		return false
     } 
 	return true

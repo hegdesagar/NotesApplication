@@ -6,9 +6,9 @@ package main
 
 const (
 
-	//Preferences
+	//Preferences : see readme.txt for details
 	_CHAR_SET 			= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	_PATH 				= "notes"
+	_PATH 				= "notesfolder"
 	_SPECIAL_CHARACTERS = "[$#@!%^&*(){}<>?~`/+\\=;:\"]"
 	
 	//Text Fomatting 
@@ -29,7 +29,7 @@ const (
 	_NOTE_ENTER_MESSAGE  = "Enter Content Here -> "
 
 	//INFO messages
-	_NOTE_CREATE_SUCCESS 		= "INFO : Note created Successfully"
+	_NOTE_CREATE_SUCCESS 		= "INFO : Note created Successfully, your note is called"
 	_NOTE_NOT_FOUND 			= "INFO : No notes found for the pattern provided"
 	_NOTE_NOT_FOUND_DELETE		= "INFO : Note not found, "
 	_NOTE_DELETED_SUCCESSFULLY	= "INFO : Note deleted successfully,"

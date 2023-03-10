@@ -39,6 +39,11 @@ func main(){
     if regErr == nil && match == true {
 		log.Fatal(_INVALID_CHARACTERS_MESSAGE)
     } 
+	
+	//Create directory "notes" if it doesnt exits	
+	if !createDirNotes() { 
+		return
+	}
 	//Swith based on the instruction
 	switch strings.ToUpper(instruction) {
 		case _WRITE_INSTRUCTION 	: writeInstruction(noteName)
@@ -50,9 +55,6 @@ func main(){
 
 /*
  * Method to print the notes on the console.
- * User provided SUBSTRING is used to match all the notes in the notes directory and print.
- * Also user is informed in case notes are not found.
- * All the notes created in the  _PATH folder doesnt have executable permissions (only rw)
  * @method	: readInstruction
  * @param	: noteNameSubstr SUBSTRING of type string
  * @return	: void
@@ -76,9 +78,6 @@ func readInstruction(noteNameSubstr string){
 
 /*
  * Method to delete the note. It takes a random generated string XXXX to identify the note to be deleted.
- * If more than one note found with the XXXX then inform the user and return.
- * Once deleted inform the success message to the user.
- * Also if the note is not found, inform the user
  * @method	: deleteInstruction
  * @param	: subjectPattern 	random string XXXX (generated during creation)
  * @return	: void
@@ -102,17 +101,11 @@ func deleteInstruction(subjectPattern string){
 
 /*
  * Method to create a note. 
- * Takes the user input from the Standard Input and creates a file with this content
- * Inform user once the note is created
  * @method	: writeInstruction
  * @param	: noteName 	name of the note provided by the user
  * @return	: none
 */
 func writeInstruction(noteName string) {
-	//Create directory "notes" if it doesnt exits	
-	if !createDirNotes() { 
-		return
-	}
 	//Creating Subject; a random string of 4 characters
 	subjectName := getString(4)
 	// Take note content from user
@@ -128,6 +121,6 @@ func writeInstruction(noteName string) {
 	//create a note with the noteName_Subject
 	fileName := noteName + _UNDERSCORE + subjectName + _TEXT_FILE_EXTENSION 
 	if noteCreate(fileName , input) {
-		fmt.Println(_NOTE_CREATE_SUCCESS) //prints success message when the note is created
+		fmt.Println(_NOTE_CREATE_SUCCESS,subjectName) //prints success message when the note is created
 	}
 }
