@@ -1,6 +1,9 @@
 /*
-Notes Application : User can create, read and delete notes
-@author: Sagar_R
+ * Notes Application : User can create, read and delete notes
+ * Create	: go run note WRITE noteName
+ * Read		: go run note READ SUBSTRING
+ * DELETE	: go run note remove XXXX ( where XXXX is the random string generated)
+ * @author: Sagar_R
 */
 package main
 
@@ -8,15 +11,16 @@ import (
 	"fmt"
 	"os"
 	"log"
-	"path/filepath"
 	"bufio"
 	"strings"
-	"io/ioutil"
 	"regexp"
 )
 
 /*
-	Main entry point of the application
+ * Main entry point of the application.
+ * @method	: main
+ * @param	: empty
+ * @return	: void
 */
 func main(){
 	//Take the user input and validate the arguments
@@ -24,15 +28,15 @@ func main(){
 	if len(args) != 2 {
 		log.Fatal(_INVALID_ARGUMENT_MESSAGE)
 		log.Fatal(_INVALID_ARGUMENT_ADDITIONAL_MESSAGE, os.Args[0])
-		os.Exit(0) //exit the process
+		return //exit the process
 	}
 
 	instruction := os.Args[1]	 //fetch the instruction from the argument
 	noteName := os.Args[2]		//fetch the nam of the note from the argument
 
-	//validate the name of the note provided; Do not allow these special characters $#@!%^&*(){}<>?~`/+=-;:\""
-	match, err := regexp.MatchString(_SPECIAL_CHARACTERS, noteName)
-    if err == nil && match == true {
+	//validate the name of the note provided; Do not allow these special characters $#@!%^&*(){}<>?~`/+=;:\""
+	match, regErr := regexp.MatchString(_SPECIAL_CHARACTERS, noteName)
+    if regErr == nil && match == true {
 		log.Fatal(_INVALID_CHARACTERS_MESSAGE)
     } 
 	//Swith based on the instruction
@@ -44,7 +48,15 @@ func main(){
 	}
 }
 
-//https://golang.cafe/blog/how-to-list-files-in-a-directory-in-go.html 
+/*
+ * Method to print the notes on the console.
+ * User provided SUBSTRING is used to match all the notes in the notes directory and print.
+ * Also user is informed in case notes are not found.
+ * All the notes created in the  _PATH folder doesnt have executable permissions (only rw)
+ * @method	: readInstruction
+ * @param	: noteNameSubstr SUBSTRING of type string
+ * @return	: void
+*/
 func readInstruction(noteNameSubstr string){
 	//find all the note files with the matching substring
 	var files = findFiles(noteNameSubstr)
@@ -53,11 +65,7 @@ func readInstruction(noteNameSubstr string){
 		return
 	}
 	for _, file := range files {
-		filePath := filepath.Join(_PATH, file.Name())
-		content, readErr := ioutil.ReadFile(filePath)
-		if readErr != nil {
-			log.Fatal(readErr)
-		}
+		content := readFile(file.Name())
 		//Print the contents of the note
 		fmt.Println(_SEPARATOR)
 		fmt.Println(file.Name() , _COLON)
@@ -66,8 +74,17 @@ func readInstruction(noteNameSubstr string){
 	}
 }
 
+/*
+ * Method to delete the note. It takes a random generated string XXXX to identify the note to be deleted.
+ * If more than one note found with the XXXX then inform the user and return.
+ * Once deleted inform the success message to the user.
+ * Also if the note is not found, inform the user
+ * @method	: deleteInstruction
+ * @param	: subjectPattern 	random string XXXX (generated during creation)
+ * @return	: void
+*/
 func deleteInstruction(subjectPattern string){
-	var files = findFiles(subjectPattern)
+	var files = findFiles(_UNDERSCORE + subjectPattern)
 	if len(files) == 0 {
 		log.Println(_NOTE_NOT_FOUND)
 		return
@@ -78,22 +95,26 @@ func deleteInstruction(subjectPattern string){
 		log.Println("More than one file found") 
 		return
 	}
-	filePath := filepath.Join(_PATH, files[0].Name())
-	e := os.Remove(filePath)
-    if e != nil {
-        log.Println(_NOTE_NOT_FOUND_DELETE, filePath)
-   } 
-   log.Println(_NOTE_DELETED_SUCCESSFULLY, files[0].Name())
+	if removeFile(files[0].Name()) {
+		log.Println(_NOTE_DELETED_SUCCESSFULLY, files[0].Name())
+	}
 }
 
+/*
+ * Method to create a note. 
+ * Takes the user input from the Standard Input and creates a file with this content
+ * Inform user once the note is created
+ * @method	: writeInstruction
+ * @param	: noteName 	name of the note provided by the user
+ * @return	: none
+*/
 func writeInstruction(noteName string) {
 	//Create directory "notes" if it doesnt exits	
-	err := os.MkdirAll(_PATH, os.ModePerm)
-	if err != nil {
-		log.Fatal(err)
+	if !createDirNotes() { 
+		return
 	}
 	//Creating Subject; a random string of 4 characters
-	subjectName := String(4)
+	subjectName := getString(4)
 	// Take note content from user
 	fmt.Print(_NOTE_ENTER_MESSAGE)
 	reader := bufio.NewReader(os.Stdin)
@@ -106,15 +127,7 @@ func writeInstruction(noteName string) {
 	input = strings.Replace(input, "\n", "", -1)
 	//create a note with the noteName_Subject
 	fileName := noteName + _UNDERSCORE + subjectName + _TEXT_FILE_EXTENSION 
-	filePath := filepath.Join(_PATH, fileName)
-	file, errCreate := os.Create(filePath)
-	if errCreate != nil {
-		log.Fatal(errCreate)
+	if noteCreate(fileName , input) {
+		fmt.Println(_NOTE_CREATE_SUCCESS) //prints success message when the note is created
 	}
-	defer file.Close()
-	if _, writeErr := file.WriteString(input + "\n");
-	writeErr != nil {
-		log.Fatal(writeErr)
-	}
-	fmt.Println(_NOTE_CREATE_SUCCESS)
 }
